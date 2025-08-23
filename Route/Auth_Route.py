@@ -76,6 +76,7 @@ async def refresh ( credentials: HTTPAuthorizationCredentials = Depends ( securi
 	refresh_token = credentials.credentials
 	return await Auth_Dao.refresh_access_token ( refresh_token )
 
+
 # @router.push ( "/change_password" , summary = "Изменение пароля" )
 # async def change_password ( jwt_token: str , password: str ) :
 # 	user_data = {
@@ -106,3 +107,14 @@ async def refresh ( credentials: HTTPAuthorizationCredentials = Depends ( securi
 #
 # 	return await Auth_Dao.change_avatar ( **user_data )
 #
+class PasswordChangeRequest ( BaseModel ) :
+	email: str
+	password: str = Field (
+		min_length = 8 ,
+		max_length = 20 ,
+		pattern = r"[A-Za-z\\d@$!%*?&\\-]{8,20}" ,
+		description = "Пароль должен быть длиной от 8 до 20 символов, содержать буквы, цифры и специальные символы"
+		)
+
+
+

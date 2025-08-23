@@ -59,7 +59,7 @@ class AuthDao :
 			if not user_data :
 				raise ValueError ( "Нету данных о пользователе в базе данных" )
 			
-			# Используем timezone.utc для получения времени, чтобы избежать ошибок с часовыми поясами.
+			
 			current_time = datetime.now ( timezone.utc )
 			expiration_time = current_time + timedelta ( minutes = 30 )
 			
@@ -123,24 +123,23 @@ class AuthDao :
 	
 	@classmethod
 	async def decode_jwt_token ( cls , token: str ) -> dict :
-		print ( "Получен токен : {token} ---" )
 		try :
-			
 			payload = jwt.decode (
 				token ,
 				SECRET_KEY ,
 				algorithms = [ ALGORITHM ] ,
 				options = { "verify_exp" : True }
 				)
-			print ( "Токен расшифрован: {payload} " )
+			if "user_id" not in payload :
+				raise HTTPException ( status_code = 401 , detail = "Недействительный токен: user_id отсутствует" )
+			
 			return payload
 		except jwt.ExpiredSignatureError :
-			print ( "Ошибка в токене" )
 			raise HTTPException ( status_code = 401 , detail = "Токен истек" )
 		except jwt.InvalidTokenError as e :
-			print ( "Ошибка проверка валидности токена: {e} " )
-			raise HTTPException ( status_code = 401 , detail = "Недействительный токен" )
-	
+			raise HTTPException ( status_code = 401 , detail = f"Недействительный токен: {e}" )
+		except Exception as e :
+			raise HTTPException ( status_code = 401 , detail = f"Ошибка декодирования токена: {e}" )
 	@classmethod
 	async def change_password ( cls , jwt_token: str , password: str ) -> str :
 		async with async_session_maker ( ) as session :
@@ -180,3 +179,5 @@ class AuthDao :
 			await session.execute ( query_change_avatar )
 			await session.commit ( )
 			return "Фотография изменена"
+
+

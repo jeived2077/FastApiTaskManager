@@ -1,56 +1,54 @@
 import datetime
-from typing import Optional
+from typing import Optional, List
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel
 
 from DAO.Task_Dao import TaskDao
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-
 
 bearer_scheme = HTTPBearer()
 
 router = APIRouter(prefix="/tasks", tags=["Задачи"])
 
+class ResponseListProjectModel(BaseModel):
+    Id_Project: int
+    Name_Project: str
+    created_At: datetime.datetime
+    created_By: str
 
-@router.get("/", summary="Вывести задачи")
-async def listtask(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
-  jwt_token = credentials.credentials
-  return await TaskDao.getTasks(jwt_token)
+class ResponseListPriorityModel(BaseModel):
+    name_priority: str
+
+class ResponseListTaskModel(BaseModel):
+    Id_Task: int
+    Name_Task: str
+    created_At: datetime.datetime
+    dealine_At: Optional[datetime.datetime]
+    created_By: str
+    name_priority: str
 
 
+class ListFilter():
+    priority: Optional[str] = None
+    filter: Optional[str] = None
 
 
+class TasksAndProjectsResponse(BaseModel):
+    tasks: List[ResponseListTaskModel]
+    projects: List[ResponseListProjectModel]
+    priorities: List[ResponseListPriorityModel]
 
 
-
-
-
-
-#
-#
-#
-# @router.post ( "/create" , summary="Добавить задачу")
-# def createtask ( ) :
-# 	pass
-#
-#
-# @router.delete ( "/delete/{task_id}" , include_in_schema = False, summary="Удалить задачу" )
-#
-#
-# def deletetask ( task_id: int ) :
-# 	pass
-#
-#
-# @router.patch ( "/change/{task_id}" , include_in_schema = False, summary="Изменить задачу" )
-#
-#
-# def changetask ( task_id: int ) :
-# 	pass
-#
-#
-# @router.get ( "/detail/{task_id}" , include_in_schema = False, summary="Подробная задача" )
-#
-#
-# def detailtask ( task_id: int ) :
-# 	pass
+@router.get("/", summary="Вывести задачи и проекты", response_model=TasksAndProjectsResponse)
+async def listtasksandproject(
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    list_filter: ListFilter = Depends(ListFilter)
+):
+    jwt_token = credentials.credentials
+    data = await TaskDao.gettasksandproject(
+        jwt_token,
+        priority=list_filter.priority,
+        filter=list_filter.filter
+    )
+    return data

@@ -4,7 +4,7 @@ from database import Base
 
 
 class UserToProject ( Base ) :
-	__tablename__ = "user_to_project"
+	__tablename__ = "user_to_projects"
 	id_user_to_project = Column ( Integer , primary_key = True )
 	id_user = Column ( Integer , ForeignKey ( "users.id_user" , ondelete = "CASCADE" ) , nullable = False , )
 	id_project = Column ( Integer , ForeignKey ( "projects.id_project" , ondelete = "CASCADE" ) , nullable = False )
