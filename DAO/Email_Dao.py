@@ -22,7 +22,7 @@ class EmailDao :
 	
 	@classmethod
 	async def send_email_code ( cls , email ) :
-		print ( os.environ [ 'SMTP' ] )
+		
 		async with async_session_maker ( ) as session :
 			query_check_user = select ( UserTable.id_user , UserTable.password_hash , UserTable.login ).where (
 				UserTable.email == email

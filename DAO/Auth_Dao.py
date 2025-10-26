@@ -19,15 +19,10 @@ REFRESH_SECRET_KEY = os.getenv ( 'REFRESH_SECRET_KEY' )
 class AuthDao :
 	model = UserTable
 	
-	# Проверка, что ключи существуют, на уровне инициализации
-	if not isinstance ( SECRET_KEY , str ) or not SECRET_KEY :
-		raise ValueError ( "SECRET_KEY must be a non-empty string." )
 	
-	if not isinstance ( REFRESH_SECRET_KEY , str ) or not REFRESH_SECRET_KEY :
-		raise ValueError ( "REFRESH_SECRET_KEY must be a non-empty string." )
 	
 	@classmethod
-	async def registration_user ( cls , login: str , password: str , email: str , role: str = "member" ) :
+	async def registration_user ( cls , login: str , password: str , email: str) :
 		password_hash = bcrypt.hashpw ( password.encode ( ) , bcrypt.gensalt ( ) ).decode ( 'utf-8' )
 		role = "member"
 		async with async_session_maker ( ) as session :

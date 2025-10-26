@@ -5,7 +5,7 @@ from sqlalchemy import Column , Integer , String , DateTime , INTEGER , ForeignK
 from database import Base
 
 
-class CommentsTable ( Base ) :
+class NestedCommentsTable ( Base ) :
 	__tablename__ = "nested_comments"
 	id_nestcomm = Column ( Integer , primary_key = True )
 	id_commit = Column ( INTEGER , ForeignKey ( "users.id_user" , ondelete = "CASCADE" ) , nullable = False )
